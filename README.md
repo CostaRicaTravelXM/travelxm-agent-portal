@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TravelXM Agent Portal
 
-## Getting Started
+Premium B2B travel agent portal — bookings, packages, commissions, CRM leads, payments and support, in the TravelXM design system (deep teal / warm gold / sunset coral, Fraunces + Inter).
 
-First, run the development server:
+**Current phase: frontend only.** Every page renders static demo data from `lib/data.ts`; there is no backend yet. On mobile the portal behaves like a native app (bottom tab bar, sheets, stacked cards, safe-area support).
+
+## Stack
+
+- [Next.js](https://nextjs.org) 16 · App Router · TypeScript
+- Tailwind CSS v4 (CSS-first config in `app/globals.css`)
+- shadcn/ui components (vendored & customized in `components/ui/`)
+- Framer Motion · Recharts · react-hook-form + zod · lucide-react
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — the login screen's **Sign In to Workspace** button takes you into the portal.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production build (what Vercel runs) |
+| `npm run lint` | ESLint |
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/            routes (login at /, portal pages under (portal)/)
+components/
+  layout/       app shell: sidebar, topbar, mobile tab bar, logo
+  ui/           vendored shadcn primitives (TravelXM-customized)
+  icons/        inline brand SVGs
+lib/            types.ts (domain model) · data.ts (static demo data)
+docs/           CHANGELOG · KNOWN_ISSUES · FIXED_ISSUES (living docs)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Hosted on [Vercel](https://vercel.com) via GitHub integration — every push to `main` deploys automatically. No environment variables or extra config required in this phase.
 
-## Deploy on Vercel
+## Documentation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [docs/CHANGELOG.md](docs/CHANGELOG.md) — what changed, per session
+- [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) — risks, tech debt, TODOs
+- [docs/FIXED_ISSUES.md](docs/FIXED_ISSUES.md) — bugs fixed and how
+- [CLAUDE.md](CLAUDE.md) — project conventions for AI-assisted development
