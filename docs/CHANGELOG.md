@@ -20,6 +20,11 @@ All notable changes to the TravelXM Agent Portal frontend. Update this file at t
 - Canva page simplified to its disconnected state (OAuth flow needs the API backend).
 - Dashboard tier card relabeled "Progress to Platinum" (summary data says the agent is already Gold; the original hardcoded "Progress to Gold").
 
+### Repository
+- Pushed to https://github.com/CostaRicaTravelXM/travelxm-agent-portal (public).
+- Commits authored by the repo-owning account using its GitHub noreply address (`288302782+CostaRicaTravelXM@users.noreply.github.com`); identity is set **locally** in this repo only (`git config user.email`, no `--global`), so other projects on the machine keep their own identity.
+- The remote is `https://CostaRicaTravelXM@github.com/...` — the username in the URL makes Git Credential Manager use that account's credential instead of the machine's default one.
+
 ### Security
 - Security review of the full codebase: no secrets, no `dangerouslySetInnerHTML`/`eval`, all `target="_blank"` links carry `rel="noopener noreferrer"`, `npm audit` reports 0 vulnerabilities.
 - Added security headers in `next.config.ts`: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, restrictive `Permissions-Policy`.
