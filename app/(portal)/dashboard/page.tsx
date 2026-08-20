@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { formatUtc } from "@/lib/format";
@@ -45,7 +46,7 @@ import {
   REVENUE_BY_MONTH,
   SPARKLINES,
 } from "@/lib/data";
-import { getImageUrl } from "@/lib/portal-images";
+import { getImageUrl, PHOTOS } from "@/lib/portal-images";
 
 const TIME_RANGES = ["7D", "30D", "90D", "1Y"];
 
@@ -104,7 +105,7 @@ function MetricCard({
               <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wider mb-1">
                 {title}
               </p>
-              <p className="text-xl md:text-2xl font-bold text-[#1A1A1A] tracking-tight">{value}</p>
+              <p className="text-xl md:text-2xl font-bold text-[#1A1A1A] tracking-tight tabular">{value}</p>
             </div>
             <div className="p-2.5 rounded-xl" style={{ backgroundColor: color + "15" }}>
               <Icon className="h-5 w-5" style={{ color }} />
@@ -146,14 +147,13 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-2xl h-44"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={getImageUrl(
-            "dashboard-hero",
-            "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80"
-          )}
-          alt="Hero"
-          className="absolute inset-0 w-full h-full object-cover"
+        <Image
+          src={getImageUrl("dashboard-hero", PHOTOS.rainforestValley.src)}
+          alt={PHOTOS.rainforestValley.alt}
+          fill
+          sizes="(max-width: 767px) 100vw, (max-width: 1279px) calc(100vw - 240px), 1216px"
+          priority
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A4D5C]/90 via-[#0A4D5C]/60 to-transparent" />
         <div className="relative z-10 flex flex-col justify-between h-full p-5 md:p-8">
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           <div className="flex items-end justify-between">
             <div>
               <p className="text-white/70 text-sm mb-0.5">Your earnings this month</p>
-              <p className="text-white text-2xl font-bold font-serif">
+              <p className="text-white text-2xl font-bold font-serif tabular">
                 ${summary.totalCommissions.toLocaleString("en-US")}
               </p>
             </div>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <MetricCard
           title="Total Revenue"
           value={`$${summary.totalRevenue.toLocaleString("en-US")}`}
@@ -237,12 +237,13 @@ export default function DashboardPage() {
                   Monthly booking revenue trend
                 </CardDescription>
               </div>
-              <div className="flex gap-1 bg-[#F4EFE6] p-1 rounded-lg">
+              <div className="flex gap-1 bg-[#F4EFE6] p-1 rounded-lg" role="group" aria-label="Time range">
                 {TIME_RANGES.map((r) => (
                   <button
                     key={r}
                     onClick={() => setTimeRange(r)}
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    aria-pressed={timeRange === r}
+                    className={`px-3 min-h-[44px] md:min-h-[28px] min-w-[44px] md:min-w-0 text-xs font-medium rounded-md transition-all ${
                       timeRange === r
                         ? "bg-white text-[#0A4D5C] shadow-sm"
                         : "text-[#6B6B6B] hover:text-[#1A1A1A]"
@@ -408,7 +409,7 @@ export default function DashboardPage() {
                       <MapPin className="h-3 w-3" /> {pkg.destination}
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-bold text-[#0A4D5C]">
+                      <p className="text-sm font-bold text-[#0A4D5C] tabular">
                         ${pkg.pricePerPerson.toLocaleString("en-US")}
                       </p>
                       <div className="flex items-center gap-0.5">
@@ -444,7 +445,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-1">
+            <div className="space-y-1 -mx-3">
               {recentBookings.map((b) => (
                 <div
                   key={b.id}
@@ -466,7 +467,7 @@ export default function DashboardPage() {
                     >
                       {b.status}
                     </Badge>
-                    <span className="text-sm font-semibold text-[#1A1A1A]">
+                    <span className="text-sm font-semibold text-[#1A1A1A] tabular">
                       ${b.totalAmount.toLocaleString("en-US")}
                     </span>
                   </div>
@@ -497,7 +498,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   {item.amount && (
-                    <span className="text-xs font-semibold text-emerald-600 shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-emerald-600 shrink-0 mt-0.5 tabular">
                       +${item.amount.toLocaleString("en-US")}
                     </span>
                   )}

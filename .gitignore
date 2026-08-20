@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Replit export (122 MB - exceeds GitHub file limit)
 Travel-Agent-Portal.zip
+
+# Full-resolution photo masters (32 MB). The optimized WebP versions in
+# public/imgs/ are what ship; keep these locally for future re-exports.
+/assets-src/

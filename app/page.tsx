@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
@@ -16,34 +17,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/layout/logo";
-import { getImageUrl } from "@/lib/portal-images";
+import { getImageUrl, PHOTOS } from "@/lib/portal-images";
 
 const CAROUSEL_SLIDES = [
-  {
-    url: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=2000&q=80",
-    location: "Santorini, Greece",
-    tagline: "Where will you send them next?",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=2000&q=80",
-    location: "Maldives",
-    tagline: "Curated journeys. Earned rewards.",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=2000&q=80",
-    location: "Swiss Alps",
-    tagline: "Premium travel, premium commissions.",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=2000&q=80",
-    location: "Kyoto, Japan",
-    tagline: "Every booking tells a story.",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2000&q=80",
-    location: "Dubai, UAE",
-    tagline: "Unlock the world for your clients.",
-  },
+  { photo: PHOTOS.arenalVolcano, location: "Arenal Volcano", tagline: "Where will you send them next?" },
+  { photo: PHOTOS.laFortunaWaterfall, location: "La Fortuna", tagline: "Curated journeys. Earned rewards." },
+  { photo: PHOTOS.pacificSunsetBeach, location: "Pacific Coast", tagline: "Premium travel, premium commissions." },
+  { photo: PHOTOS.playaSamara, location: "Playa Sámara", tagline: "Every booking tells a story." },
+  { photo: PHOTOS.scarletMacaws, location: "Corcovado National Park", tagline: "Unlock the world for your clients." },
 ];
 
 const SOCIAL_LOGINS = [
@@ -115,11 +96,14 @@ export default function LoginPage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2 }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={getImageUrl(`login-slide-${slideIndex + 1}`, slide.url)}
-              alt={slide.location}
-              className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+            <Image
+              src={getImageUrl(`login-slide-${slideIndex + 1}`, slide.photo.src)}
+              alt={slide.photo.alt}
+              fill
+              // The panel is 60vw and never exceeds a 2560px display.
+              sizes="(max-width: 1023px) 0px, 60vw"
+              priority={slideIndex === 0}
+              className="object-cover animate-ken-burns"
             />
           </motion.div>
         </AnimatePresence>
@@ -179,9 +163,37 @@ export default function LoginPage() {
 
       {/* Right: Form panel */}
       <div className="w-full lg:w-[40%] flex flex-col bg-[#FAFAF7] overflow-y-auto">
-        {/* Mobile logo */}
-        <div className="lg:hidden p-6 border-b border-[#E8E2D5] pt-safe">
-          <Logo className="text-[#0A4D5C]" />
+        {/* Mobile header — the carousel is desktop-only, so the phone gets a
+         * band of the same photography rather than a bare logo bar. */}
+        <div className="lg:hidden">
+          <div className="p-6 pb-4 pt-safe">
+            <Logo className="text-[#0A4D5C]" />
+          </div>
+          <div className="relative h-36 sm:h-44 overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slideIndex}
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2 }}
+              >
+                <Image
+                  src={slide.photo.src}
+                  alt={slide.photo.alt}
+                  fill
+                  sizes="(min-width: 1024px) 0px, 100vw"
+                  priority
+                  className="object-cover"
+                />
+              </motion.div>
+            </AnimatePresence>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A4D5C]/85 via-[#0A4D5C]/20 to-transparent" />
+            <p className="absolute bottom-3 left-6 right-6 text-[#D4A24C] text-xs font-medium tracking-widest uppercase truncate">
+              {slide.location}
+            </p>
+          </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center p-6 sm:p-8 xl:p-12">
@@ -206,7 +218,7 @@ export default function LoginPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
               <button
-                className={`flex-1 text-sm font-medium py-2.5 rounded-lg relative z-10 transition-colors ${
+                className={`flex-1 inline-flex items-center justify-center text-sm font-medium min-h-[44px] rounded-lg relative z-10 transition-colors ${
                   tab === "login" ? "text-[#0A4D5C]" : "text-[#6B6B6B]"
                 }`}
                 onClick={() => setTab("login")}
@@ -214,7 +226,7 @@ export default function LoginPage() {
                 Sign In
               </button>
               <button
-                className={`flex-1 text-sm font-medium py-2.5 rounded-lg relative z-10 transition-colors ${
+                className={`flex-1 inline-flex items-center justify-center text-sm font-medium min-h-[44px] rounded-lg relative z-10 transition-colors ${
                   tab === "signup" ? "text-[#0A4D5C]" : "text-[#6B6B6B]"
                 }`}
                 onClick={() => setTab("signup")}
@@ -288,7 +300,7 @@ export default function LoginPage() {
                     {tab === "login" && (
                       <Link
                         href="#"
-                        className="text-xs text-[#E87A5D] hover:text-[#E87A5D]/80 transition-colors"
+                        className="inline-flex items-center min-h-[44px] sm:min-h-0 px-1 -mr-1 text-xs text-[#E87A5D] hover:text-[#E87A5D]/80 transition-colors"
                       >
                         Forgot password?
                       </Link>
@@ -304,7 +316,7 @@ export default function LoginPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 grid place-content-center h-11 w-11 rounded-lg text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors"
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -351,9 +363,9 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="text-center text-xs text-[#6B6B6B] mt-8">
               By continuing, you agree to TravelXM&apos;s{" "}
-              <a href="#" className="text-[#0A4D5C] hover:underline">Terms of Service</a>{" "}
+              <a href="#" className="text-[#0A4D5C] underline-offset-2 hover:underline inline-block py-2">Terms of Service</a>{" "}
               and{" "}
-              <a href="#" className="text-[#0A4D5C] hover:underline">Privacy Policy</a>
+              <a href="#" className="text-[#0A4D5C] underline-offset-2 hover:underline inline-block py-2">Privacy Policy</a>
             </p>
           </div>
         </div>
@@ -363,8 +375,12 @@ export default function LoginPage() {
           <span className="text-xs text-[#6B6B6B]">© 2024 TravelXM. All rights reserved.</span>
           <div className="flex items-center gap-3">
             {[InstagramIcon, FacebookIcon, LinkedinIcon, TwitterIcon].map((Icon, i) => (
-              <a key={i} href="#" className="text-[#6B6B6B] hover:text-[#0A4D5C] transition-colors">
-                <Icon className="h-3.5 w-3.5" />
+              <a
+                key={i}
+                href="#"
+                className="grid place-content-center h-11 w-11 -m-2.5 rounded-lg text-[#6B6B6B] hover:text-[#0A4D5C] transition-colors"
+              >
+                <Icon className="h-4 w-4" />
               </a>
             ))}
           </div>

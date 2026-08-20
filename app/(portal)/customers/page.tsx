@@ -254,7 +254,7 @@ export default function CustomersPage() {
           placeholder="Search by name or email…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
+          className="pl-9 h-11 md:h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
         />
       </div>
 
@@ -321,9 +321,11 @@ export default function CustomersPage() {
                         <ChevronRight className="h-4 w-4 text-[#6B6B6B] group-hover:text-[#0A4D5C] transition-colors shrink-0 mt-0.5" />
                       </div>
                       <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 text-xs text-[#6B6B6B]">
-                          <Mail className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{customer.email}</span>
+                        <div className="flex items-start gap-2 text-xs text-[#6B6B6B] min-w-0">
+                          <Mail className="h-3 w-3 shrink-0 mt-0.5" />
+                          {/* Addresses have no spaces to wrap on — break rather
+                           * than clip the domain off the end. */}
+                          <span className="break-all line-clamp-2">{customer.email}</span>
                         </div>
                         {customer.phone && (
                           <div className="flex items-center gap-2 text-xs text-[#6B6B6B]">

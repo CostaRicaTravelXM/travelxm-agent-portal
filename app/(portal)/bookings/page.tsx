@@ -52,6 +52,84 @@ const STATUS_CONFIG: Record<
 
 const STATUS_OPTIONS = ["all", "confirmed", "pending", "active", "completed", "cancelled"];
 
+/** Column tracks for the desktop table. Declared once; the header row and every
+ *  data row inherit them via `grid-cols-subgrid`. */
+const TABLE_GRID =
+  "grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)_auto_auto_auto_auto]";
+const TABLE_HEAD = "text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider";
+
+function StatusSelect({
+  booking,
+  config,
+  onChange,
+}: {
+  booking: Booking;
+  config: (typeof STATUS_CONFIG)[string];
+  onChange: (id: number, status: BookingStatus) => void;
+}) {
+  const StatusIcon = config.icon;
+  return (
+    <Select
+      value={booking.status}
+      onValueChange={(val) => onChange(booking.id, val as BookingStatus)}
+    >
+      <SelectTrigger
+        aria-label={`Change status for booking #${booking.id}`}
+        className="min-h-[44px] lg:min-h-0 lg:h-auto text-xs rounded-lg w-auto border-transparent bg-transparent p-0 shadow-none"
+      >
+        <SelectValue>
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium ${config.className}`}
+          >
+            <StatusIcon className="h-3 w-3" /> {config.label}
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="rounded-xl">
+        {Object.entries(STATUS_CONFIG).map(([val, cfg]) => (
+          <SelectItem key={val} value={val} className="text-sm">
+            {cfg.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function RowActions({
+  bookingId,
+  onDelete,
+}: {
+  bookingId: number;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={`Actions for booking #${bookingId}`}
+          className="rounded-lg hover:bg-[#F4EFE6] shrink-0"
+        >
+          <MoreHorizontal className="h-4 w-4 text-[#6B6B6B]" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="rounded-xl border-[#E8E2D5]">
+        <DropdownMenuItem className="gap-2 text-sm cursor-pointer">
+          <Pencil className="h-3.5 w-3.5" /> Edit booking
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="gap-2 text-sm text-red-600 focus:text-red-600 cursor-pointer"
+          onClick={() => onDelete(bookingId)}
+        >
+          <Trash2 className="h-3.5 w-3.5" /> Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>(BOOKINGS);
   const [search, setSearch] = useState("");
@@ -133,22 +211,23 @@ export default function BookingsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3">
         <div className="relative max-w-sm w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B6B6B]" />
           <Input
             placeholder="Search customer, destination…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
+            className="pl-9 h-11 md:h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
           />
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide edge-fade -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {STATUS_OPTIONS.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-4 py-2 min-h-[40px] rounded-xl text-sm font-medium whitespace-nowrap capitalize transition-all ${
+              aria-pressed={statusFilter === s}
+              className={`px-4 py-2 min-h-[44px] sm:min-h-[40px] rounded-xl text-sm font-medium whitespace-nowrap capitalize transition-all ${
                 statusFilter === s
                   ? "bg-[#0A4D5C] text-white shadow-sm"
                   : "bg-white border border-[#E8E2D5] text-[#6B6B6B] hover:border-[#0A4D5C] hover:text-[#0A4D5C]"
@@ -175,133 +254,102 @@ export default function BookingsPage() {
           </div>
         ) : (
           <>
-            {/* Table header (desktop) */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 px-6 py-3 border-b border-[#E8E2D5] bg-[#FAFAF7]">
-              {["Customer", "Destination", "Dates", "Amount", "Status", ""].map((h) => (
-                <p key={h} className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wider">
-                  {h}
-                </p>
-              ))}
-            </div>
-            <div className="divide-y divide-[#F4EFE6]">
+            {/* Desktop table. One grid owns the column tracks; the header row
+             * and every data row are subgrids of it, so the columns line up by
+             * construction instead of each grid sizing `auto` to its own
+             * contents. Below lg the same records render as stacked cards. */}
+            <div className={`hidden lg:grid ${TABLE_GRID}`}>
+              <div className="col-span-full grid grid-cols-subgrid gap-4 px-6 py-3 border-b border-[#E8E2D5] bg-[#FAFAF7]">
+                <p className={TABLE_HEAD}>Customer</p>
+                <p className={TABLE_HEAD}>Destination</p>
+                <p className={TABLE_HEAD}>Dates</p>
+                <p className={`${TABLE_HEAD} text-right`}>Amount</p>
+                <p className={TABLE_HEAD}>Status</p>
+                <p className="sr-only">Actions</p>
+              </div>
+
               {filtered.map((b, i) => {
                 const sc = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.pending;
-                const StatusIcon = sc.icon;
-
-                const statusSelect = (
-                  <Select
-                    value={b.status}
-                    onValueChange={(val) => handleStatusChange(b.id, val as BookingStatus)}
-                  >
-                    <SelectTrigger className="h-8 text-xs rounded-lg w-auto border-transparent bg-transparent p-0 shadow-none">
-                      <SelectValue>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium ${sc.className}`}
-                        >
-                          <StatusIcon className="h-3 w-3" /> {sc.label}
-                        </span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      {Object.entries(STATUS_CONFIG).map(([val, cfg]) => (
-                        <SelectItem key={val} value={val} className="text-sm">
-                          {cfg.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                );
-
-                const actionsMenu = (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-[#F4EFE6]">
-                        <MoreHorizontal className="h-4 w-4 text-[#6B6B6B]" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-xl border-[#E8E2D5]">
-                      <DropdownMenuItem className="gap-2 text-sm cursor-pointer">
-                        <Pencil className="h-3.5 w-3.5" /> Edit booking
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="gap-2 text-sm text-red-600 focus:text-red-600 cursor-pointer"
-                        onClick={() => handleDelete(b.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                );
-
                 return (
                   <motion.div
                     key={b.id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.03 }}
+                    className="col-span-full grid grid-cols-subgrid gap-4 items-center px-6 py-4 border-t border-[#F4EFE6] hover:bg-[#FAFAF7] transition-colors"
                   >
-                    {/* Desktop row */}
-                    <div className="hidden md:grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-4 items-center px-6 py-4 hover:bg-[#FAFAF7] transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-[#0A4D5C]/10 flex items-center justify-center shrink-0">
+                        <span className="text-[#0A4D5C] text-xs font-bold">
+                          {b.customerName.slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#1A1A1A] truncate">{b.customerName}</p>
+                        <p className="text-xs text-[#6B6B6B] tabular">#{b.id}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Plane className="h-3.5 w-3.5 text-[#6B6B6B] shrink-0" />
+                      <span className="text-sm text-[#1A1A1A] truncate">{b.destination}</span>
+                    </div>
+
+                    <div className="text-xs text-[#6B6B6B] whitespace-nowrap tabular">
+                      {formatUtc(b.startDate, "MMM d")} – {formatUtc(b.endDate, "MMM d, yyyy")}
+                    </div>
+
+                    <p className="text-sm font-semibold text-[#1A1A1A] whitespace-nowrap tabular text-right">
+                      ${b.totalAmount.toLocaleString("en-US")}
+                    </p>
+
+                    <StatusSelect booking={b} config={sc} onChange={handleStatusChange} />
+                    <RowActions bookingId={b.id} onDelete={handleDelete} />
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Stacked cards below lg */}
+            <div className="lg:hidden divide-y divide-[#F4EFE6]">
+              {filtered.map((b, i) => {
+                const sc = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.pending;
+                return (
+                  <motion.div
+                    key={b.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="p-4 space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-9 w-9 rounded-full bg-[#0A4D5C]/10 flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-[#0A4D5C]/10 flex items-center justify-center shrink-0">
                           <span className="text-[#0A4D5C] text-xs font-bold">
                             {b.customerName.slice(0, 2).toUpperCase()}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-[#1A1A1A] truncate">{b.customerName}</p>
-                          <p className="text-xs text-[#6B6B6B]">#{b.id}</p>
+                          <p className="text-sm font-semibold text-[#1A1A1A] truncate">
+                            {b.customerName}
+                          </p>
+                          <p className="text-xs text-[#6B6B6B] truncate flex items-center gap-1">
+                            <Plane className="h-3 w-3 shrink-0" /> {b.destination}
+                          </p>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <Plane className="h-3.5 w-3.5 text-[#6B6B6B] shrink-0" />
-                        <span className="text-sm text-[#1A1A1A] truncate">{b.destination}</span>
+                      <RowActions bookingId={b.id} onDelete={handleDelete} />
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-xs text-[#6B6B6B] tabular">
+                        {formatUtc(b.startDate, "MMM d")} – {formatUtc(b.endDate, "MMM d, yyyy")}
                       </div>
-
-                      <div className="text-xs text-[#6B6B6B] whitespace-nowrap">
-                        {formatUtc(b.startDate, "MMM d")} –{" "}
-                        {formatUtc(b.endDate, "MMM d, yyyy")}
-                      </div>
-
-                      <p className="text-sm font-semibold text-[#1A1A1A] whitespace-nowrap">
+                      <p className="text-sm font-bold text-[#1A1A1A] tabular">
                         ${b.totalAmount.toLocaleString("en-US")}
                       </p>
-
-                      {statusSelect}
-                      {actionsMenu}
                     </div>
-
-                    {/* Mobile card */}
-                    <div className="md:hidden p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-10 w-10 rounded-full bg-[#0A4D5C]/10 flex items-center justify-center shrink-0">
-                            <span className="text-[#0A4D5C] text-xs font-bold">
-                              {b.customerName.slice(0, 2).toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[#1A1A1A] truncate">
-                              {b.customerName}
-                            </p>
-                            <p className="text-xs text-[#6B6B6B] truncate flex items-center gap-1">
-                              <Plane className="h-3 w-3" /> {b.destination}
-                            </p>
-                          </div>
-                        </div>
-                        {actionsMenu}
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-xs text-[#6B6B6B]">
-                          {formatUtc(b.startDate, "MMM d")} –{" "}
-                          {formatUtc(b.endDate, "MMM d, yyyy")}
-                        </div>
-                        <p className="text-sm font-bold text-[#1A1A1A]">
-                          ${b.totalAmount.toLocaleString("en-US")}
-                        </p>
-                      </div>
-                      <div>{statusSelect}</div>
+                    <div>
+                      <StatusSelect booking={b} config={sc} onChange={handleStatusChange} />
                     </div>
                   </motion.div>
                 );

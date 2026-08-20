@@ -302,7 +302,7 @@ export default function SupportPage() {
           placeholder="Search tickets or FAQs…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
+          className="pl-9 h-11 md:h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
         />
       </div>
 
@@ -310,7 +310,7 @@ export default function SupportPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* My Tickets */}
         <Card className="border border-[#E8E2D5] bg-white rounded-2xl shadow-sm overflow-hidden">
-          <CardHeader className="pb-2">
+          <CardHeader className="px-5 pt-5 pb-3">
             <CardTitle className="font-serif font-medium text-[#1A1A1A] text-lg">My Tickets</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -337,11 +337,13 @@ export default function SupportPage() {
                       className="p-5 hover:bg-[#FAFAF7] transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#1A1A1A] truncate">
+                        <div className="flex-1 min-w-[12rem]">
+                          {/* The subject is the row's whole point — it wraps
+                           * rather than truncating into an unreadable stub. */}
+                          <p className="text-sm font-semibold text-[#1A1A1A] leading-snug text-pretty">
                             {ticket.subject}
                           </p>
-                          <p className="text-xs text-[#6B6B6B] mt-0.5">
+                          <p className="text-xs text-[#6B6B6B] mt-0.5 tabular">
                             #{ticket.id} · {formatUtc(ticket.createdAt, "MMM d, yyyy")}
                           </p>
                         </div>
@@ -365,9 +367,9 @@ export default function SupportPage() {
                       {ticket.status !== "closed" && ticket.status !== "resolved" && (
                         <button
                           onClick={() => handleClose(ticket.id)}
-                          className="text-xs text-[#6B6B6B] hover:text-[#E87A5D] transition-colors min-h-[32px]"
+                          className="inline-flex items-center gap-1.5 -ml-2 px-2 min-h-[44px] md:min-h-[32px] rounded-lg text-xs font-medium text-[#6B6B6B] hover:text-[#E87A5D] hover:bg-[#E87A5D]/5 transition-colors"
                         >
-                          Mark as resolved
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Mark as resolved
                         </button>
                       )}
                     </motion.div>
@@ -381,7 +383,7 @@ export default function SupportPage() {
         {/* FAQ */}
         <div id="faq">
           <Card className="border border-[#E8E2D5] bg-white rounded-2xl shadow-sm overflow-hidden">
-            <CardHeader className="pb-2">
+            <CardHeader className="px-5 pt-5 pb-3">
               <CardTitle className="font-serif font-medium text-[#1A1A1A] text-lg">
                 Frequently Asked Questions
               </CardTitle>

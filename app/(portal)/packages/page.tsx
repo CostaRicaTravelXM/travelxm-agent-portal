@@ -65,22 +65,23 @@ export default function PackagesPage() {
       </motion.div>
 
       {/* Search + category filter */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3">
         <div className="relative max-w-sm w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#6B6B6B]" />
           <Input
             placeholder="Search destinations…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
+            className="pl-9 h-11 md:h-10 bg-white border-[#E8E2D5] rounded-xl focus:border-[#D4A24C] focus:ring-[#D4A24C]/20"
           />
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide edge-fade -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 min-h-[40px] rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              aria-pressed={category === cat}
+              className={`px-4 py-2 min-h-[44px] sm:min-h-[40px] rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                 category === cat
                   ? "bg-[#0A4D5C] text-white shadow-sm"
                   : "bg-white border border-[#E8E2D5] text-[#6B6B6B] hover:border-[#0A4D5C] hover:text-[#0A4D5C]"

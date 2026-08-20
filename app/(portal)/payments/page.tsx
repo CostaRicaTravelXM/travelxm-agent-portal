@@ -266,10 +266,12 @@ export default function PaymentsPage() {
                         <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        {/* Addresses have no spaces to wrap on — break them
+                         * over two lines rather than clipping the domain. */}
+                        <p className="text-sm font-medium break-all line-clamp-2 md:line-clamp-1">
                           {tx.customerEmail || tx.description || tx.id}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground tabular">
                           {formatUtc(tx.createdAt, "MMM d, h:mm a")}
                         </p>
                       </div>
